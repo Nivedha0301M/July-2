@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+
+{q:"Union Health Minister Jagat Prakash (J.P.) Nadda recently launched Aarogya Setu 2.0 along with several digital health initiatives to strengthen India's Digital Public Infrastructure for Health. Which of the following was NOT among the initiatives launched on the occasion?", options:["Ayushman Application (App)","Unified Health Interface (UHI)","National Health Claims Exchange (NHCX)","National Telemedicine Exchange (NTX)"], answer:3},
+
+{q:"The launch of Aarogya Setu 2.0 and other digital health initiatives primarily aims to:", options:["Replace all state-level health insurance schemes","Promote interoperable digital health solutions and strengthen India's Digital Public Infrastructure for Health","Establish a nationwide hospital accreditation mechanism","Integrate medical colleges under a single digital regulator"], answer:1},
+
+{q:"During the launch of Aarogya Setu 2.0, progress under which flagship digital health mission was highlighted by the Ministry of Health and Family Welfare (MoHFW)?", options:["National Health Mission (NHM)","Ayushman Bharat Digital Mission (ABDM)","National Digital Education Mission (NDEM)","Ayushman Bharat Pradhan Mantri Jan Arogya Yojana (AB-PMJAY)"], answer:1},
+
+{q:"The Unified Health Interface (UHI), highlighted among the newly launched digital initiatives, has been developed primarily as:", options:["A national electronic medical record repository","An open digital protocol for healthcare services under the Ayushman Bharat Digital Mission (ABDM)","A digital payment gateway for hospitals","A unified portal for procurement of medicines"], answer:1},
+
+{q:"The Ayushman Bharat Digital Mission (ABDM), whose progress was highlighted during the launch event, was officially launched on:", options:["15 August 2020","26 January 2021","27 September 2021","1 July 2022"], answer:2},
+
+{q:"Under the Ayushman Bharat Digital Mission (ABDM), citizens are provided with a unique digital health identity known as:", options:["National Health ID (NHID)","Ayushman Bharat Health Account (ABHA)","Digital Citizen Health Number (DCHN)","National Medical Identity (NMI)"], answer:1},
+
+{q:"The Aarogya Setu application, whose upgraded version (2.0) was recently launched, was originally introduced during:", options:["The National Digital Health Mission rollout","The COVID-19 pandemic for contact tracing and digital health services","Ayushman Bharat implementation","Universal Immunisation Programme expansion"], answer:1},
+
+{q:"The Ministry of Information and Broadcasting (MIB) recently announced a High-Level Study Group to examine opportunities and challenges facing Indian cinema. The group has been asked to submit its report within:", options:["One month","Two months","Three months","Six months"], answer:2},
+
+{q:"The High-Level Study Group constituted by the Ministry of Information and Broadcasting (MIB) to strengthen India's film industry will be chaired by:", options:["Gaurav Dwivedi","Prasoon Joshi","Ashwini Vaishnaw","Manoj Joshi"], answer:1},
+
+{q:"Along with constituting a High-Level Study Group, the Ministry of Information and Broadcasting (MIB) also announced Model State Cinema Regulations primarily to:", options:["Standardise movie ticket prices across India","Facilitate the expansion of cinema halls and theatres across States","Introduce a national film certification system","Promote regional language film production through subsidies"], answer:1},
+
+{q:"The Prasar Bharati, whose Chairman has been appointed to head the High-Level Study Group on Indian cinema, primarily functions as India's:", options:["National Film Certification Authority","Public Service Broadcaster","Central Film Finance Agency","National Broadcasting Regulator"], answer:1},
+
+{q:"The headquarters of Prasar Bharati, associated with the recently announced High-Level Study Group, is located in:", options:["Mumbai","Chennai","New Delhi","Bengaluru"], answer:2},
+
+{q:"The Department of Economic Affairs (DEA) under the Ministry of Finance recently retained the interest rates on all Small Savings Schemes (SSS) unchanged for the second quarter of FY27. This marks the:", options:["Seventh consecutive quarter without revision","Eighth consecutive quarter without revision","Ninth consecutive quarter without revision","Tenth consecutive quarter without revision"], answer:2},
+
+{q:"The interest rates on Small Savings Schemes (SSS) have been kept unchanged for the period:", options:["April 1, 2026 to June 30, 2026","July 1, 2026 to September 30, 2026","October 1, 2026 to December 31, 2026","January 1, 2027 to March 31, 2027"], answer:1},
+
+{q:"According to the latest notification of the Ministry of Finance, which one of the following Small Savings Schemes currently offers an annual interest rate of 8.20%?", options:["Public Provident Fund (PPF)","Senior Citizen Savings Scheme (SCSS)","National Savings Certificate (NSC)","Kisan Vikas Patra (KVP)"], answer:1},
+
+{q:"Among the following Small Savings Schemes, which one presently carries an annual interest rate of 7.70%, as retained by the Ministry of Finance for Q2 FY27?", options:["Sukanya Samriddhi Yojana (SSY)","National Savings Certificate (NSC)","Public Provident Fund (PPF)","Post Office Monthly Income Scheme (POMIS)"], answer:1},
+
+{q:"The committee whose recommendations form the basis for determining the interest rates on Small Savings Schemes (SSS) is headed by:", options:["Urjit Patel","Bimal Jalan","Shyamala Gopinath","Rakesh Mohan"], answer:2},
+
+{q:"According to the recommendations of the Shyamala Gopinath Committee, the interest rates on Small Savings Schemes should generally remain:", options:["Equal to government bond yields","25 to 100 basis points higher than government bond yields","100 to 150 basis points lower than government bond yields","Determined solely by the Reserve Bank of India"], answer:1},
+
+{q:"Among the following Small Savings Schemes, which one enjoys the EEE (Exempt–Exempt–Exempt) tax treatment under the Income Tax provisions?", options:["National Savings Certificate (NSC)","Public Provident Fund (PPF)","Five-Year Post Office Time Deposit","Post Office Monthly Income Scheme (POMIS)"], answer:1},
+
+{q:"Union Home Minister Amit Shah recently launched the Foreign Contribution (Regulation) Act (FCRA) 2.0 Portal along with the electronic Overseas Citizen of India (e-OCI) ecosystem. The primary objective of these initiatives is to:", options:["Introduce compulsory digital passports for all overseas Indians","Strengthen digital governance, simplify compliance, and enhance citizen services","Replace the Passport Seva Programme","Regulate international tourism through a unified digital platform"], answer:1},
+
+{q:"The Foreign Contribution (Regulation) Act (FCRA) 2.0 Portal, recently launched by Union Home Minister Amit Shah, has primarily been designed to:", options:["Facilitate online passport issuance for OCI holders","Reduce paperwork and simplify compliance related to foreign contributions","Digitise land records of charitable organisations","Enable online voting for Overseas Citizens of India"], answer:1},
+
+{q:"The newly launched electronic Overseas Citizen of India (e-OCI) ecosystem enables applicants to:", options:["Apply online, upload documents and download their digital OCI card","Renew Indian passports without visiting an embassy","Register for Aadhaar from abroad","Apply for Indian citizenship through a single portal"], answer:0},
+
+{q:"The Foreign Contribution (Regulation) Act (FCRA), under which the recently launched FCRA 2.0 Portal has been developed, was originally enacted in:", options:["1976","1980","1985","1991"], answer:0},
+
+{q:"The current Foreign Contribution (Regulation) Act (FCRA), governing the regulation of foreign contributions received by organisations in India, came into force in:", options:["2005","2008","2010","2012"], answer:2},
+
+{q:"The Foreign Contribution (Regulation) Act (FCRA) was amended most recently in:", options:["2018","2019","2020","2021"], answer:2},
+
+{q:"The Overseas Citizen of India (OCI) scheme, whose digital ecosystem (e-OCI) was recently launched, was originally introduced in:", options:["2003","2004","2005","2006"], answer:2},
+
+{q:"The Government of India has recently identified 25 Tiger Reserves (TRs) for priority reintroduction under a science-led recovery strategy. The announcement was made by Union Minister Bhupender Yadav at:", options:["Jaipur, Rajasthan","Alwar, Rajasthan","Bhopal, Madhya Pradesh","Dehradun, Uttarakhand"], answer:1},
+
+{q:"The identification of 25 Tiger Reserves (TRs) for priority reintroduction is primarily based on:", options:["Recommendations of the Wildlife Crime Control Bureau","Two reports on active tiger management and lessons from tiger reintroductions","The National Forest Policy, 1988","The India State of Forest Report 2025"], answer:1},
+
+{q:"The National Tiger Conservation Authority (NTCA), associated with the management of Tiger Reserves in India, functions under which ministry?", options:["Ministry of Agriculture and Farmers Welfare","Ministry of Environment, Forest and Climate Change","Ministry of Rural Development","Ministry of Science and Technology"], answer:1},
+
+{q:"According to the latest official data referred to in the recent announcement, India presently has how many notified Tiger Reserves?", options:["55","56","57","58"], answer:3},
+
+{q:"Union Defence Minister Rajnath Singh recently released the Delegation of Financial Powers (DFP-2026) for the Defence Research and Development Organisation (DRDO). The primary objective of DFP-2026 is to:", options:["Increase defence exports through private participation","Enhance efficiency, accountability and timely execution of strategic R&D projects","Create a dedicated defence manufacturing bank","Merge DRDO laboratories under a single command"], answer:1},
+
+{q:"The Delegation of Financial Powers (DFP-2026), recently released for the Defence Research and Development Organisation (DRDO), is intended mainly to strengthen:", options:["Space technology research","Self-reliance in defence technologies","Cyber security for financial institutions","Maritime trade logistics"], answer:1},
+
+{q:"The Defence Research and Development Organisation (DRDO), for which DFP-2026 has recently been released, was established in:", options:["1956","1957","1958","1959"], answer:2},
+
+{q:"The headquarters of the Defence Research and Development Organisation (DRDO) is located in:", options:["Hyderabad","Pune","New Delhi","Bengaluru"], answer:2},
+
+{q:"The recently signed Memorandum of Agreement (MoA) for the Yamuna Water Project seeks primarily to implement which earlier agreement?", options:["National Water Policy, 2012","1994 Upper Yamuna River Board (UYRB) Agreement","Inter-State River Water Disputes Agreement, 2002","National River Conservation Agreement, 1998"], answer:1},
+
+{q:"The recently signed Memorandum of Agreement (MoA) on the Yamuna Water Project aims to resolve the long-pending water dispute between:", options:["Uttar Pradesh and Uttarakhand","Delhi and Haryana","Haryana and Rajasthan","Punjab and Haryana"], answer:2},
+
+{q:"The estimated cost of the recently approved Yamuna Water Project is:", options:["Rs.28,500 crore","Rs.30,450 crore","Rs.34,102 crore","Rs.36,800 crore"], answer:2},
+
+{q:"The Upper Yamuna River Board (UYRB), referred to in the recent Yamuna Water Project agreement, was established in:", options:["1993","1994","1995","1996"], answer:2},
+
+{q:"India and Saudi Arabia recently signed a Memorandum of Understanding (MoU) to strengthen cooperation in water resources during a meeting held in:", options:["Riyadh","Jeddah","Dammam","Mecca"], answer:1},
+
+{q:"The recently signed India–Saudi Arabia Memorandum of Understanding (MoU) on water resources was signed on behalf of India by:", options:["Harsh Vardhan Shringla","Suhel Khan","Vinay Mohan Kwatra","Sanjay Verma"], answer:1},
+
+{q:"On its 119th Foundation Day, Punjab & Sind Bank (PSB) unveiled a series of customer-centric digital banking initiatives along with a new Vision & Mission Statement. Which of the following digital initiatives was launched by the bank on the occasion?", options:["PSB Bharat Connect Account","PSB Digital Gold Account","Bharat Savings Plus Account","PSB Smart Banking Portal"], answer:0},
+
+{q:"During its 119th Foundation Day celebrations, Punjab & Sind Bank (PSB) introduced the Navjyoti Mobile App primarily to:", options:["Facilitate international remittances exclusively","Enhance customer-centric digital banking services","Provide agricultural credit monitoring","Manage inter-bank settlement operations"], answer:1},
+
+{q:"Along with launching digital initiatives, Punjab & Sind Bank (PSB) also unveiled:", options:["A revised Priority Sector Lending Policy","A new Vision & Mission Statement","A National Financial Literacy Programme","A Digital Rupee Payment Framework"], answer:1},
+
+{q:"Punjab & Sind Bank (PSB), which recently celebrated its 119th Foundation Day, was originally established in:", options:["1906","1907","1908","1909"], answer:2},
+
+{q:"Punjab & Sind Bank (PSB), which recently launched the Navjyoti Mobile App, belongs to which category of banks?", options:["Small Finance Bank","Public Sector Bank","Private Sector Bank","Payments Bank"], answer:1},
+
+{q:"Who currently serves as the Managing Director (MD) & Chief Executive Officer (CEO) of Punjab & Sind Bank (PSB)?", options:["Atul Kumar Goel","Swarup Kumar Saha","Challa Sreenivasulu Setty","Ashwani Kumar"], answer:1},
+
+{q:"The Securities and Exchange Board of India (SEBI) recently constituted an Expert Working Group (EWG) primarily to review the regulatory framework governing:", options:["Mutual Fund Regulations","Debenture Trustees under the SEBI (Debenture Trustees) Regulations, 1993","Alternative Investment Funds","Credit Rating Agencies"], answer:1},
+
+{q:"The Expert Working Group (EWG) constituted by SEBI to review the Debenture Trusteeship Framework is chaired by:", options:["Rajnish Kumar","Tuhin Kanta Pandey","Ananta Barua","Madhabi Puri Buch"], answer:2},
+
+{q:"The Expert Working Group (EWG) constituted by SEBI has Rajnish Kumar, former Chairman of State Bank of India (SBI), serving as:", options:["Chairperson","Co-Chairperson","Member Secretary","Technical Adviser"], answer:1},
+
+{q:"The regulatory framework currently under review by the SEBI Expert Working Group is governed by the SEBI (Debenture Trustees) Regulations, notified in:", options:["1991","1992","1993","1994"], answer:2},
+
+{q:"The Securities and Exchange Board of India (SEBI), which recently constituted an Expert Working Group, was established in:", options:["1986","1987","1988","1992"], answer:2},
+
+{q:"The Securities and Exchange Board of India (SEBI) obtained statutory powers through an Act of Parliament in:", options:["1988","1990","1992","1994"], answer:2},
+
+{q:"The headquarters of the Securities and Exchange Board of India (SEBI) is located in:", options:["New Delhi","Mumbai","Hyderabad","Ahmedabad"], answer:1},
+
+{q:"SBI Life Insurance Company Limited recently signed a Memorandum of Understanding (MoU) with Indian Institute of Technology Bombay (IIT Bombay) to establish which of the following?", options:["National Insurance Technology Centre","Bharat AI & Cyber Innovation Hub for Insurance","Digital Risk Assessment Platform","National Cyber Insurance Research Centre"], answer:1},
+
+{q:"The primary objective behind the collaboration between SBI Life Insurance and IIT Bombay is to:", options:["Develop AI-based stock trading platforms","Build indigenous AI-powered cyber defence systems for the insurance sector","Introduce blockchain-based life insurance policies","Create a unified insurance regulator"], answer:1},
+
+{q:"The Memorandum of Understanding (MoU) for establishing the Bharat AI & Cyber Innovation Hub for Insurance was signed on behalf of SBI Life Insurance by:", options:["Tarun Chugh","Vishal Bhati","Dinesh Kumar Khara","Challa Sreenivasulu Setty"], answer:1},
+
+{q:"SBI Life Insurance Company Limited, which recently partnered with IIT Bombay, was established in:", options:["1998","1999","2000","2001"], answer:2},
+
+{q:"The parent organisation of SBI Life Insurance Company Limited is:", options:["Life Insurance Corporation of India","State Bank of India","Ministry of Finance","Insurance Regulatory and Development Authority of India"], answer:1},
+
+{q:"The Indian Institute of Technology Bombay (IIT Bombay), which signed an MoU with SBI Life Insurance, was established in:", options:["1956","1957","1958","1959"], answer:2},
+
+{q:"The Indian Institute of Technology Bombay (IIT Bombay) is officially recognised as:", options:["Central University","Deemed University","Institute of National Importance","National Research University"], answer:2},
+
+{q:"The Appointments Committee of the Cabinet (ACC) has approved the reappointment of Ravi Agrawal as Chairman of the Central Board of Direct Taxes (CBDT) for an additional period of:", options:["Three months","Six months","One year","Two years"], answer:1},
+
+{q:"According to the recent approval of the Appointments Committee of the Cabinet (ACC), Ravi Agrawal will continue as Chairman of the Central Board of Direct Taxes (CBDT) until:", options:["31 December 2026 or until further orders, whichever is earlier","31 March 2027","30 June 2027","Till completion of five years of service"], answer:0},
+
+{q:"Ravi Agrawal, who has recently been reappointed as Chairman of the Central Board of Direct Taxes (CBDT), had earlier succeeded:", options:["Nitin Gupta","Sanjay Malhotra","Ajay Bhushan Pandey","Vivek Johri"], answer:0},
+
+{q:"The Central Board of Direct Taxes (CBDT), whose Chairman Ravi Agrawal has been reappointed, functions under which department?", options:["Department of Financial Services","Department of Revenue","Department of Economic Affairs","Department of Expenditure"], answer:1},
+
+{q:"The Central Board of Direct Taxes (CBDT) was established in:", options:["1961","1962","1963","1964"], answer:2},
+
+{q:"The Directorate General of Civil Aviation (DGCA) recently conducted India's first Satellite Landing System (SLS) approach trial on a commercial aircraft using which indigenous navigation system?", options:["NavIC","GAGAN","IRNSS Aviation Grid","Bharat Navigation System"], answer:1},
+
+{q:"India's first Satellite Landing System (SLS) approach trial by the Directorate General of Civil Aviation (DGCA) was successfully carried out using which aircraft?", options:["Air India Boeing 737","IndiGo Airbus A320","Akasa Air Boeing 737 MAX","Air India Express Airbus A321"], answer:1},
+
+{q:"The Directorate General of Civil Aviation (DGCA) conducted India's first Satellite Landing System (SLS) approach trial at:", options:["Jaipur International Airport","Maharana Pratap Airport, Udaipur","Sardar Vallabhbhai Patel International Airport","Jodhpur Airport"], answer:1},
+
+{q:"The abbreviation GAGAN, recently highlighted during India's first Satellite Landing System (SLS) approach trial, stands for:", options:["GPS Aided GEO Augmented Navigation","Global Aviation Geo Augmented Network","Geostationary Air Guidance and Navigation","GPS Assisted Global Air Navigation"], answer:0},
+
+{q:"The GAGAN system, India's Satellite-Based Augmentation System (SBAS), has been jointly developed by:", options:["ISRO and DRDO","ISRO and Airports Authority of India (AAI)","DGCA and ISRO","AAI and HAL"], answer:1},
+
+{q:"The Airports Authority of India (AAI), which jointly developed GAGAN with ISRO, was established in:", options:["1993","1994","1995","1996"], answer:2},
+
+{q:"The headquarters of the Airports Authority of India (AAI) is located in:", options:["Mumbai","New Delhi","Hyderabad","Bengaluru"], answer:1},
+
+{q:"The Directorate General of Civil Aviation (DGCA), which recently completed India's first Satellite Landing System (SLS) approach trial, was established in:", options:["1925","1926","1927","1928"], answer:2},
+
+{q:"The noted Marathi theatre personality and Padma Shri awardee Vijaya Mehta, who recently passed away, was honoured with the Padma Shri in:", options:["1985","1986","1987","1988"], answer:2},
+
+{q:"Vijaya Mehta, who recently passed away, received the National Film Award for Best Supporting Actress in:", options:["1984","1985","1986","1987"], answer:2},
+
+{q:"International Day of Parliamentarism (World Parliament Day) is observed every year on:", options:["29 June","30 June","1 July","2 July"], answer:1},
+
+{q:"The theme for the International Day of Parliamentarism 2026 is:", options:["Parliaments for Peace and Democracy","The Future of Human Rights is Written in Parliaments","Strengthening Democratic Institutions Worldwide","Inclusive Governance for Sustainable Development"], answer:1},
+
+{q:"National Doctors' Day in India is observed every year on 1 July primarily to commemorate the birth and death anniversary of:", options:["Dr. M. Visvesvaraya","Dr. Bidhan Chandra Roy","Dr. A.P.J. Abdul Kalam","Dr. Homi J. Bhabha"], answer:1},
+
+{q:"The theme for National Doctors' Day 2026 is:", options:["Healing Beyond Boundaries","Behind the Mask: Who Heals the Healers?","Doctors for a Healthy Nation","Compassion in Healthcare"], answer:1},
+
+{q:"National Chartered Accountants Day is observed every year on 1 July to commemorate the establishment of which institution?", options:["Institute of Cost Accountants of India (ICMAI)","Institute of Chartered Accountants of India (ICAI)","Institute of Company Secretaries of India (ICSI)","National Institute of Financial Management (NIFM)"], answer:1},
+
+];
+
+
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 2700;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
